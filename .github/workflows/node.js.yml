@@ -62,8 +62,8 @@ jobs:
       - name: Expose Port 3000 with ngrok and start API server
         run: |
           ngrok http 3000 > /dev/null &
-          node server.ts
-        #   sleep 3
+          node server.ts &
+          sleep 3
  
       - name: Get ngrok URL to client project
         run: |
