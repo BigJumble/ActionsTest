@@ -1,5 +1,6 @@
 import * as http from 'http';
 import * as net from 'net';
+import * as https from 'https';
 
 function pingGoogle(): Promise<boolean> {
     return new Promise((resolve) => {
@@ -34,6 +35,18 @@ function pingGoogle(): Promise<boolean> {
 
 pingGoogle().then((result) => {
     console.log('Ping result:', result ? 'Success' : 'Failed');
+});
+
+https.get('https://api64.ipify.org?format=json', (res) => {
+    let data = '';
+    res.on('data', (chunk) => {
+        data += chunk;
+    });
+    res.on('end', () => {
+        console.log('Public IP:', JSON.parse(data).ip);
+    });
+}).on('error', (err) => {
+    console.log('Error fetching public IP:', err.message);
 });
 
 const server = http.createServer((req, res) => {
