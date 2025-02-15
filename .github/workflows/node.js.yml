@@ -23,46 +23,81 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
       
+      - name: Detect package manager
+        id: detect-package-manager
+        run: |
+          if [ -f "${{ github.workspace }}/client/yarn.lock" ]; then
+            echo "manager=yarn" >> $GITHUB_OUTPUT
+            echo "command=install" >> $GITHUB_OUTPUT
+            echo "runner=yarn" >> $GITHUB_OUTPUT
+            exit 0
+          elif [ -f "${{ github.workspace }}/client/package.json" ]; then
+            echo "manager=npm" >> $GITHUB_OUTPUT
+            echo "command=ci" >> $GITHUB_OUTPUT
+            echo "runner=npx --no-install" >> $GITHUB_OUTPUT
+            exit 0
+          else
+            echo "Unable to determine package manager"
+            exit 1
+          fi
+
       - name: Setup Node.js v23.x
         uses: actions/setup-node@v4
         with:
           node-version: '23.x'
+          cache: ${{ steps.detect-package-manager.outputs.manager }}
       
       - name: Install ngrok
         run: |
-          curl -s https://ngrok-agent.s3.amazonaws.com/ngrok.asc | sudo tee /etc/apt/trusted.gpg.d/ngrok.asc >/dev/null
-          echo "deb https://ngrok-agent.s3.amazonaws.com buster main" | sudo tee /etc/apt/sources.list.d/ngrok.list
-          sudo apt update && sudo apt install ngrok
+          curl -sSL https://ngrok-agent.s3.amazonaws.com/ngrok.asc \
+          | sudo tee /etc/apt/trusted.gpg.d/ngrok.asc >/dev/null \
+          && echo "deb https://ngrok-agent.s3.amazonaws.com buster main" \
+          | sudo tee /etc/apt/sources.list.d/ngrok.list \
+          && sudo apt update \
+          && sudo apt install ngrok
           ngrok config add-authtoken ${{ secrets.NGROK_AUTH_TOKEN }}
       
-      - name: Expose Port 3000 with ngrok
+      - name: Expose Port 3000 with ngrok and start API server
         run: |
           ngrok http 3000 > /dev/null &
-          sleep 5
+          nohup node server.ts
+        #   sleep 3
+ 
+      - name: Get ngrok URL to client project
+        run: |
           NGROK_URL=$(curl --silent --fail http://127.0.0.1:4040/api/tunnels | jq -r '.tunnels[0].public_url')
           mkdir -p ./docs
-          echo "export default {\"url\":\"$NGROK_URL\"}" > ./docs/ngrok-url.js
+          echo "export default {\"url\":\"$NGROK_URL\"}" > ./client/src/app/ngrok.ts
           echo "$NGROK_URL"
-      
-      - name: Start TypeScript Server
-        run: |
-          node server.ts &
-          sleep 5
-          curl --fail http://localhost:3000/hello || (echo "Server did not start" && exit 1) &
 
-      
-      # GitHub Pages deployment steps
-      - name: Setup Pages
-        uses: actions/configure-pages@v5
-      
+      - name: Test TS server
+        run: |
+          curl --fail http://localhost:3000/hello || (echo "TS Server did not start" && exit 1) &
+
+
+      - name: Restore cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            client/.next/cache
+          key: ${{ runner.os }}-nextjs-${{ hashFiles('client/**/package-lock.json', 'client/**/yarn.lock') }}-${{ hashFiles('client/**.[jt]s', 'client/**.[jt]sx') }}
+          restore-keys: |
+            ${{ runner.os }}-nextjs-${{ hashFiles('client/**/package-lock.json', 'client/**/yarn.lock') }}-
+
+      - name: Install dependencies
+        run: cd client && ${{ steps.detect-package-manager.outputs.manager }} ${{ steps.detect-package-manager.outputs.command }}
+
+      - name: Build with Next.js
+        run: cd client && ${{ steps.detect-package-manager.outputs.runner }} next build
+
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: './docs'  # Upload the docs directory containing static files
-      
+          path: client/out
+
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
 
-      - name: PAUSE
-        run: sleep 200
+      - name: RUN API SERVER FOR 1H
+        run: sleep 3600
