@@ -3,6 +3,11 @@ on:
   push:
     branches: [ main ]
   workflow_dispatch:
+    inputs:
+      delay_seconds:
+        description: 'Delay before restarting (in seconds)'
+        required: true
+        default: '60'
 
 permissions:
   contents: read
@@ -124,4 +129,4 @@ jobs:
         uses: actions/deploy-pages@v4
 
       - name: RUN API SERVER FOR 1H
-        run: sleep 1
+        run: sleep 60
