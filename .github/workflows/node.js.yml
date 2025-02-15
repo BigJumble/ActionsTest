@@ -63,7 +63,7 @@ jobs:
         run: |
           ngrok http 3000 > /dev/null &
           node server.mts &
-          sleep 0
+          sleep 5
  
       - name: Get ngrok URL to client project
         run: |
