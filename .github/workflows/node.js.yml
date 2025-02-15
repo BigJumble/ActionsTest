@@ -23,11 +23,6 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
       
-      - name: Test dir
-        run: |
-          cd client 
-          echo "$PWD"
-
       - name: Detect package manager
         id: detect-package-manager
         run: |
@@ -46,14 +41,12 @@ jobs:
             exit 1
           fi
 
-      - name: Test dir 2
-        run: echo "$PWD"
 
       - name: Setup Node.js v23.x
         uses: actions/setup-node@v4
         with:
           node-version: '23.x'
-          cache: ${{ steps.detect-package-manager.outputs.manager }}
+          cache: ${{ steps.detect-package-manager.outputs.manager }}/client
       
       - name: Install ngrok
         run: |
