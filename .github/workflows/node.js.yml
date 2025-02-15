@@ -62,14 +62,14 @@ jobs:
       - name: Expose Port 3000 with ngrok and start API server
         run: |
           ngrok http 3000 > /dev/null &
-          node server.ts &
-          sleep 3
+          node server.mts &
+          sleep 0
  
       - name: Get ngrok URL to client project
         run: |
           NGROK_URL=$(curl --silent --fail http://127.0.0.1:4040/api/tunnels | jq -r '.tunnels[0].public_url')
           mkdir -p ./docs
-          echo "export default {\"url\":\"$NGROK_URL\"}" > ./client/src/app/ngrok.ts
+          echo "export default {\"url\":\"$NGROK_URL\"}" > ./src/app/ngrok.ts
           echo "$NGROK_URL"
 
       - name: Test TS server
