@@ -21,7 +21,7 @@ jobs:
         run: |
           # Run the TS server directly; Node.js v23 can run TS files natively.
           ping google.com &
-          nohup node server.ts &
+          node server.ts &
           # Give the server time to start
           sleep 5
           # Verify the server is responding (assumes it listens on port 3000)
