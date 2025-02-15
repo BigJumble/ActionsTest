@@ -1,0 +1,28 @@
+name: Run Native TS Server
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  run-server:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js v23.x
+        uses: actions/setup-node@v4
+        with:
+          node-version: '23.x'
+
+      - name: Start TypeScript Server
+        run: |
+          # Run the TS server directly; Node.js v23 can run TS files natively.
+          ping google.com &
+          nohup node server.ts &
+          # Give the server time to start
+          sleep 5
+          # Verify the server is responding (assumes it listens on port 3000)
+          curl --fail http://localhost:3000 || (echo "Server did not start" && exit 1)
