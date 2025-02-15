@@ -25,4 +25,5 @@ jobs:
           # Give the server time to start
           sleep 5
           # Verify the server is responding (assumes it listens on port 3000)
-          curl --fail http://localhost:3000/hello || (echo "Server did not start" && exit 1)
+          curl --fail http://localhost:3000/hello || (echo "Server did not start" && exit 1) &
+          sleep 1000
