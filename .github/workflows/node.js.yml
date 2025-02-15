@@ -26,6 +26,9 @@ jobs:
       - name: Detect package manager
         id: detect-package-manager
         run: |
+          echo "$PWD"
+          cd client
+          echo "$PWD"
           if [ -f "${{ github.workspace }}/client/yarn.lock" ]; then
             echo "manager=yarn" >> $GITHUB_OUTPUT
             echo "command=install" >> $GITHUB_OUTPUT
