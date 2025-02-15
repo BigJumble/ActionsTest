@@ -62,7 +62,7 @@ jobs:
       - name: Expose Port 3000 with ngrok and start API server
         run: |
           ngrok http 3000 > /dev/null &
-          nohup node server.ts
+          node server.ts
         #   sleep 3
  
       - name: Get ngrok URL to client project
@@ -93,7 +93,7 @@ jobs:
 
       - name: Build with Next.js
         run: ${{ steps.detect-package-manager.outputs.runner }} next build
-        
+
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
