@@ -105,4 +105,4 @@ jobs:
         uses: actions/deploy-pages@v4
 
       - name: RUN API SERVER FOR 1H
-        run: sleep 3600
+        run: sleep 1
