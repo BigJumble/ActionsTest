@@ -73,9 +73,13 @@ jobs:
       
       - name: Expose Port 3000 with ngrok and start API server
         run: |
-          ngrok http 3000 > /dev/null &
-          node server.mts &
-          sleep 5
+            ngrok http 3000 &  
+            node server.mts &  
+            until curl -s http://127.0.0.1:4040/api/tunnels | grep -q '"public_url"'; do
+                echo "Waiting for ngrok to start..."
+                sleep 0.5
+            done
+            echo "ngrok is active!"
  
       - name: Get ngrok URL to client project
         run: |
