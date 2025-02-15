@@ -1,2 +1,2 @@
-import url from "./ngrok-url.json";
-document.body.innerHTML = `${url}`;
+import url from "./ngrok-url.js";
+document.body.innerHTML = `${JSON.stringify(url)}`;
