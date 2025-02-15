@@ -25,8 +25,7 @@ jobs:
       
       - name: Test dir
         run: |
-          echo "$PWD" &
-          cd client & 
+          cd client 
           echo "$PWD"
 
       - name: Detect package manager
