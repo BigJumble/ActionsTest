@@ -1,7 +1,5 @@
 name: Run Native TS Server and deploy to pages with reverse proxy ip
 on:
-  schedule:
-    - cron: '*/5 * * * *'  # Trigger every 5 minutes
   push:
     branches: [ main ]
   workflow_dispatch:
@@ -126,12 +124,11 @@ jobs:
         uses: actions/deploy-pages@v4
 
       - name: RUN API SERVER FOR 1H
-        run: sleep 180
+        run: sleep 10
 
-      # - name: Run this Action again
-      #   env:
-      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Use the default token or a PAT
-      #   run: |
-      #     gh workflow run node.js.yml \
-      #       --ref ${{ github.ref }} \
-      #       -f delay_seconds=${{ github.event.inputs.delay_seconds }}
+      - name: Run this Action again
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Use the default token or a PAT
+        run: |
+          gh workflow run node.js.yml \
+            --ref ${{ github.ref }}
