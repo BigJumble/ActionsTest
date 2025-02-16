@@ -1,13 +1,10 @@
 name: Run Native TS Server and deploy to pages with reverse proxy ip
 on:
+  schedule:
+    - cron: '*/5 * * * *'  # Trigger every 5 minutes
   push:
     branches: [ main ]
   workflow_dispatch:
-    inputs:
-      delay_seconds:
-        description: 'Delay before restarting (in seconds)'
-        required: true
-        default: '60'
 
 permissions:
   contents: read
@@ -56,10 +53,10 @@ jobs:
       - name: Restore ngrok from cache
         uses: actions/cache@v4
         with:
-            path: /usr/local/bin/ngrok
-            key: ngrok-${{ runner.os }}-${{ hashFiles('**/.github/workflows/*.yml') }}
-            restore-keys: |
-              ngrok-${{ runner.os }}-
+          path: /usr/local/bin/ngrok
+          key: ngrok-${{ runner.os }}-${{ hashFiles('**/.github/workflows/*.yml') }}
+          restore-keys: |
+            ngrok-${{ runner.os }}-
   
       - name: Install ngrok if not cached
         run: |
@@ -129,4 +126,12 @@ jobs:
         uses: actions/deploy-pages@v4
 
       - name: RUN API SERVER FOR 1H
-        run: sleep 60
+        run: sleep 180
+
+      # - name: Run this Action again
+      #   env:
+      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Use the default token or a PAT
+      #   run: |
+      #     gh workflow run node.js.yml \
+      #       --ref ${{ github.ref }} \
+      #       -f delay_seconds=${{ github.event.inputs.delay_seconds }}
