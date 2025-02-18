@@ -1,1 +1,0 @@
-export default {"url":"https://temp.ngrok-free.app"};

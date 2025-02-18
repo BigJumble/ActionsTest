@@ -24,75 +24,18 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-      
-      - name: Detect package manager
-        id: detect-package-manager
-        run: |
-          if [ -f "${{ github.workspace }}/yarn.lock" ]; then
-            echo "manager=yarn" >> $GITHUB_OUTPUT
-            echo "command=install" >> $GITHUB_OUTPUT
-            echo "runner=yarn" >> $GITHUB_OUTPUT
-            exit 0
-          elif [ -f "${{ github.workspace }}/package.json" ]; then
-            echo "manager=npm" >> $GITHUB_OUTPUT
-            echo "command=ci" >> $GITHUB_OUTPUT
-            echo "runner=npx --no-install" >> $GITHUB_OUTPUT
-            exit 0
-          else
-            echo "Unable to determine package manager"
-            exit 1
-          fi
-
 
       - name: Setup Node.js v23.x
         uses: actions/setup-node@v4
         with:
           node-version: '23.x'
-          cache: ${{ steps.detect-package-manager.outputs.manager }}
+          cache: npm
       
-      - name: Restore ngrok from cache
-        uses: actions/cache@v4
-        with:
-          path: /usr/local/bin/ngrok
-          key: ngrok-${{ runner.os }}-${{ hashFiles('**/.github/workflows/*.yml') }}
-          restore-keys: |
-            ngrok-${{ runner.os }}-
-  
-      - name: Install ngrok if not cached
-        run: |
-            if ! command -v ngrok &> /dev/null; then
-              echo "ngrok not found, installing..."
-              curl -sSL https://ngrok-agent.s3.amazonaws.com/ngrok.asc \
-              | sudo tee /etc/apt/trusted.gpg.d/ngrok.asc >/dev/null \
-              && echo "deb https://ngrok-agent.s3.amazonaws.com buster main" \
-              | sudo tee /etc/apt/sources.list.d/ngrok.list \
-              && sudo apt update \
-              && sudo apt install ngrok
-            else
-              echo "ngrok is cached, skipping installation."
-            fi
-            ngrok config add-authtoken ${{ secrets.NGROK_AUTH_TOKEN }}
-      
-      - name: Expose Port 3000 with ngrok and start API server
-        run: |
-            ngrok http 3000 &  
-            node server.mts &  
-            until curl -s http://127.0.0.1:4040/api/tunnels | grep -q '"public_url"'; do
-                echo "Waiting for ngrok to start..."
-                sleep 0.5
-            done
-            echo "ngrok is active!"
- 
-      - name: Get ngrok URL to client project
-        run: |
-          NGROK_URL=$(curl --silent --fail http://127.0.0.1:4040/api/tunnels | jq -r '.tunnels[0].public_url')
-          mkdir -p ./docs
-          echo "export default {\"url\":\"$NGROK_URL\"}" > ./src/app/ngrok.ts
-          echo "$NGROK_URL"
+      - name: start API server
+        run: node server.mts 
 
       - name: Test TS server
-        run: |
-          curl --fail http://localhost:3000/hello || (echo "TS Server did not start" && exit 1) &
+        run: curl --fail http://localhost:3000/hello || (echo "TS Server did not start" && exit 1) &
 
 
       - name: Restore cache
@@ -107,19 +50,17 @@ jobs:
               ${{ runner.os }}-nextjs-${{ hashFiles('**/package-lock.json', '**/yarn.lock') }}-
 
       - name: Install dependencies
-        run: ${{ steps.detect-package-manager.outputs.manager }} ${{ steps.detect-package-manager.outputs.command }}
+        run: npm ci
 
       - name: Build with Next.js
         env:
           ROUTE: ${{ github.event.repository.name }}
-        run: |
-          ${{ steps.detect-package-manager.outputs.runner }} next build
+        run: npx next build
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
           path: ./out
-
 
       - name: Deploy to GitHub Pages
         id: deployment
@@ -128,11 +69,11 @@ jobs:
       - name: RUN API SERVER FOR 1H
         run: sleep 3600
 
-      - name: Run this Action again
-        run: |
-          curl -X POST \
-          -H "Accept: application/vnd.github+json" \
-          -H "Authorization: Bearer ${{ secrets.RUN }}" \
-          -H "X-GitHub-Api-Version: 2022-11-28" \
-          https://api.github.com/repos/${{ github.repository }}/dispatches \
-          -d '{"event_type":"trigger_recursive_workflow"}'
+    #   - name: Run this Action again
+    #     run: |
+    #       curl -X POST \
+    #       -H "Accept: application/vnd.github+json" \
+    #       -H "Authorization: Bearer ${{ secrets.RUN }}" \
+    #       -H "X-GitHub-Api-Version: 2022-11-28" \
+    #       https://api.github.com/repos/${{ github.repository }}/dispatches \
+    #       -d '{"event_type":"trigger_recursive_workflow"}'
