@@ -25,7 +25,7 @@ export class Communicator {
         this.conn.send(num.toString());
     }
 
-    static handleData(data: any) {
+    static handleData(data: string) {
         console.log(`Received: ${data}\nfrom: ${this.conn.peer}`);
         if (data === "ping") {
             this.conn.send("pong");
@@ -48,7 +48,7 @@ export class Communicator {
         this.isOpen = true;
         this.requestData(0);
         // this.conn.send("hi!");
-        this.conn.on('data', (data) => this.handleData(data));
+        this.conn.on('data', (data) => this.handleData(data as string));
     }
 
     static handlePeerOpen(id: string) {

@@ -9,7 +9,7 @@ export default function Home() {
   const [messages, setMessages] = useState<MetaMessage[]>([]);
   const observerTarget = useRef(null);
 
-  const handleSubmit = (e:any) => {
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const newMessage: MetaMessage = {
       userName: name,

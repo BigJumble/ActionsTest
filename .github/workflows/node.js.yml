@@ -31,13 +31,6 @@ jobs:
           node-version: '23.x'
           cache: npm
       
-      - name: start API server
-        run: node server.mts 
-
-      - name: Test TS server
-        run: curl --fail http://localhost:3000/hello || (echo "TS Server did not start" && exit 1) &
-
-
       - name: Restore cache
         uses: actions/cache@v4
         with:
@@ -65,15 +58,3 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
-
-      - name: RUN API SERVER FOR 1H
-        run: sleep 3600
-
-    #   - name: Run this Action again
-    #     run: |
-    #       curl -X POST \
-    #       -H "Accept: application/vnd.github+json" \
-    #       -H "Authorization: Bearer ${{ secrets.RUN }}" \
-    #       -H "X-GitHub-Api-Version: 2022-11-28" \
-    #       https://api.github.com/repos/${{ github.repository }}/dispatches \
-    #       -d '{"event_type":"trigger_recursive_workflow"}'
