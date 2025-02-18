@@ -1,22 +1,52 @@
 'use client'
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Communicator } from "@/global/communicator";
+import type { MetaMessage } from "@/types";
 
 export default function Home() {
   const [name, setName] = useState('');
   const [message, setMessage] = useState('');
+  const [messages, setMessages] = useState<MetaMessage[]>([]);
+  const observerTarget = useRef(null);
 
   const handleSubmit = (e:any) => {
     e.preventDefault();
-    Communicator.send({
-      userName:name,
+    const newMessage: MetaMessage = {
+      userName: name,
       message,
       date: new Date().getTime()
-    });
+    };
+    Communicator.send(newMessage);
+    // setMessages(prev => [...prev, newMessage]);
     // Clear inputs after sending
-    setName('');
+    // setName('');
     setMessage('');
   };
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            Communicator.requestData(messages.length);
+          }
+        });
+      },
+      { threshold: 1.0 }
+    );
+
+    if (observerTarget.current) {
+      observer.observe(observerTarget.current);
+      Communicator.setMessages = setMessages;
+    }
+
+    return () => {
+      if (observerTarget.current) {
+        observer.unobserve(observerTarget.current);
+      }
+    };
+  }, [messages.length]);
+
 
   return (
     <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
@@ -49,6 +79,23 @@ export default function Home() {
             Send
           </button>
         </form>
+
+        <div className="w-full space-y-4">
+          {messages.map((msg, index) => (
+            <div key={index} className="p-4 border border-gray-300 rounded-md">
+              <div className="font-bold">{msg.userName}</div>
+              <div>{msg.message}</div>
+              <div className="text-sm text-gray-500">
+                {new Date(msg.date).toLocaleString()}
+              </div>
+            </div>
+          ))}
+        </div>
+        
+        <div 
+          ref={observerTarget}
+          className="w-full h-4 mt-4"
+        />
       </main>
     </div>
   );
