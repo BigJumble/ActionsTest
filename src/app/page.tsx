@@ -49,16 +49,16 @@ export default function Home() {
 
 
   return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start w-full max-w-md">
-        <form onSubmit={handleSubmit} className="w-full space-y-4">
+    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 font-[family-name:var(--font-geist-sans)]">
+      <main className="grid flex flex-col gap-8 row-start-2 items-center justify-items-center sm:items-start w-full">
+        <form onSubmit={handleSubmit} className="grid justify-items-center w-fit space-y-4">
           <div>
             <input
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="Enter your name"
-              className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-black"
+              className="w-fit px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-black"
               required
             />
           </div>
@@ -68,24 +68,24 @@ export default function Home() {
               value={message}
               onChange={(e) => setMessage(e.target.value)}
               placeholder="Enter your message"
-              className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-black"
+              className="w-fit px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-black"
               required
             />
           </div>
           <button
             type="submit"
-            className="w-full px-4 py-2 text-white bg-blue-500 rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-fit px-4 py-2 text-white bg-blue-500 rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
             Send
           </button>
         </form>
 
-        <div className="w-full space-y-4">
+        <div className="grid justify-items-center  space-y-4">
           {messages.map((msg, index) => (
-            <div key={index} className="p-4 border border-gray-300 rounded-md">
-              <div className="font-bold">{msg.userName}</div>
-              <div>{msg.message}</div>
-              <div className="text-sm text-gray-500">
+            <div key={index} className="p-4 border border-gray-300 rounded-md max-h-[130vh] overflow-x-hidden overflow-y-auto">
+              <div className="text-xl w-min max-w-[350px] truncate">{msg.userName}</div>
+              <div className="w-min min-w-[350px] ">{msg.message}</div>
+              <div className="text-sm text-gray-500 pt-2">
                 {new Date(msg.date).toLocaleString()}
               </div>
             </div>
@@ -94,7 +94,7 @@ export default function Home() {
         
         <div 
           ref={observerTarget}
-          className="w-full h-4 mt-4"
+          className="w-fit h-4 mt-4"
         />
       </main>
     </div>
