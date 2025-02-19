@@ -8,6 +8,7 @@ export class Communicator {
     static conn: DataConnection;
     static isOpen: boolean = false;
     static setMessages: Dispatch<SetStateAction<MetaMessage[]>>;
+    static nodeID =0;
 
     static send(message: Message) {
         if (!this.isOpen) {
@@ -53,11 +54,31 @@ export class Communicator {
 
     static handlePeerOpen(id: string) {
         console.log(`My ID: ${id}`);
-        this.conn = this.peer.connect("ouroboros-node-0-3c4n89384fyn73c4345");
+        this.conn = this.peer.connect(`ouroboros-node-${this.nodeID}-3c4n89384fyn73c4345`);
+        
+        setTimeout(() => {
+            if (!this.isOpen) {
+                console.log("Connection failed, trying other node");
+                this.cleanup();
+
+            }
+        }, 3000);
         this.conn.on("open", () => this.handleConnectionOpen());
+        this.conn.on("error",()=>{ 
+            console.log("CONNECTION ERROR HAPPENED!");
+            this.cleanup();
+        });
+        this.conn.on("close",()=>{ 
+            console.log("CONNECTION TO SERVER CLOSED! RECONNECTING!");
+            this.cleanup();
+        }
+        );
     }
 
-    static {
+    static{
+        this.init();
+    }
+    static init(){
         this.peer = new Peer({
             config: {
                 'iceServers': [
@@ -76,6 +97,21 @@ export class Communicator {
         });
 
         this.peer.on('open', (id) => this.handlePeerOpen(id));
+    }
+
+    static cleanup() {
+        if (this.conn) {
+            this.conn.close();
+        }
+        if (this.peer) {
+            this.peer.destroy();
+        }
+        this.setMessages([]);
+        this.isOpen = false;
+        this.nodeID +=1;
+        this.nodeID%=2;
+        this.init();
+
     }
 }
 // declare global {
