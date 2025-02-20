@@ -92,7 +92,7 @@ export class Communicator {
         if (nodesID) {
 
             const peerConnect = (node: string) => {
-                this.peer.connect(node);
+                this.conn = this.peer.connect(node);
                 this.conn.on("open", () => this.handleConnectionOpen());
                 this.conn.on("error", () => {
                     console.log("CONNECTION ERROR HAPPENED!");
