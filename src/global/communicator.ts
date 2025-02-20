@@ -89,9 +89,6 @@ export class Communicator {
     static async handlePeerOpen(id: string) {
         console.log(`My ID: ${id}`);
         const nodesID = await this.getNodesID();
-        console.log(`Nodes IDs: ${nodesID}`);
-
-
         if (nodesID) {
             this.peer.on("error", (error) => {
                 if (error.type === "peer-unavailable") {
@@ -101,8 +98,6 @@ export class Communicator {
             });
 
             this.conn = this.peer.connect(nodesID.oldNode);
-
-
 
             this.conn.on("open", () => this.handleConnectionOpen());
             this.conn.on("error", () => {
@@ -115,13 +110,6 @@ export class Communicator {
             }
             );
         }
-
-        setTimeout(() => {
-            if (!this.isOpen) {
-                console.log("Connection failed, trying to connect again");
-                this.cleanup();
-            }
-        }, 15000);
     }
 
     static {
