@@ -54,7 +54,7 @@ export class Communicator {
         this.conn.on('data', (data) => this.handleData(data as string));
     }
 
-    static async getNodeID() {
+    static async getNodesID() {
         try {
             const response = await fetch('https://bigjumble.github.io/Ouroboros/nodes.json', {
                 cache: 'no-store',
@@ -70,8 +70,11 @@ export class Communicator {
             const nodeKeys = Object.keys(nodes).map(Number);
             const latestNodeKey = Number(Math.max(...nodeKeys));
             const latestNode = nodes[latestNodeKey];
+            
+            const oldNodeKey = Number(Math.min(...nodeKeys));
+            const oldNode = nodes[oldNodeKey];
 
-            return latestNode;
+            return {latestNode, oldNode};
 
 
 
@@ -85,11 +88,19 @@ export class Communicator {
 
     static async handlePeerOpen(id: string) {
         console.log(`My ID: ${id}`);
+        const nodesID = await this.getNodesID();
+        console.log(`Nodes IDs: ${nodesID}`);
 
-        const nodeID = await this.getNodeID();
-        console.log(`Node ID: ${nodeID}`);
-        if (nodeID) {
-            this.conn = this.peer.connect(nodeID);
+        if (nodesID) {
+            this.conn = this.peer.connect(nodesID.oldNode);
+
+            this.peer.on("error", (error) => {
+                if (error.message.includes("Could not connect to peer")) {
+                    this.conn.close();
+                    this.conn = this.peer.connect(nodesID.latestNode);
+                }
+            });
+
             this.conn.on("open", () => this.handleConnectionOpen());
             this.conn.on("error", () => {
                 console.log("CONNECTION ERROR HAPPENED!");
