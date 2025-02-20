@@ -91,16 +91,21 @@ export class Communicator {
         const nodesID = await this.getNodesID();
         console.log(`Nodes IDs: ${nodesID}`);
 
+
         if (nodesID) {
-            this.conn = this.peer.connect(nodesID.oldNode);
 
             this.peer.on("error", (error) => {
-                console.log(error.message);
+                console.log(error.type);
                 if (error.message.includes("Could not connect to peer")) {
                     console.log("Failed to connect to old node, trying to connect to latest node");
+    
                     this.conn = this.peer.connect(nodesID.latestNode);
                 }
             });
+
+            this.conn = this.peer.connect(nodesID.oldNode);
+
+
 
             this.conn.on("open", () => this.handleConnectionOpen());
             this.conn.on("error", () => {
