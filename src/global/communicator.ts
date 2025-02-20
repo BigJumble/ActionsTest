@@ -96,7 +96,7 @@ export class Communicator {
 
             this.peer.on("error", (error) => {
                 if (error.message.includes("Could not connect to peer")) {
-                    this.conn.close();
+                    console.log("Failed to connect to old node, trying to connect to latest node");
                     this.conn = this.peer.connect(nodesID.latestNode);
                 }
             });
