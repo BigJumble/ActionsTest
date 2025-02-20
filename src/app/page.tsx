@@ -17,9 +17,6 @@ export default function Home() {
       date: new Date().getTime()
     };
     Communicator.send(newMessage);
-    // setMessages(prev => [...prev, newMessage]);
-    // Clear inputs after sending
-    // setName('');
     setMessage('');
   };
 
@@ -35,14 +32,16 @@ export default function Home() {
       { threshold: 1.0 }
     );
 
-    if (observerTarget.current) {
-      observer.observe(observerTarget.current);
+    const currentTarget = observerTarget.current;
+
+    if (currentTarget) {
+      observer.observe(currentTarget);
       Communicator.setMessages = setMessages;
     }
 
     return () => {
-      if (observerTarget.current) {
-        observer.unobserve(observerTarget.current);
+      if (currentTarget) {
+        observer.unobserve(currentTarget);
       }
     };
   }, [messages.length]);

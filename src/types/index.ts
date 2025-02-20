@@ -7,3 +7,8 @@ export interface Message {
 export interface MetaMessage extends Message{
     date: number;
 }
+
+
+export interface ServerNodes {
+    [key: number]: string
+}
