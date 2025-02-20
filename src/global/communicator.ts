@@ -55,9 +55,14 @@ export class Communicator {
     }
 
     static async getNodeID() {
-
         try {
-            const response = await fetch('https://bigjumble.github.io/Ouroboros/nodes.json');
+            const response = await fetch('https://bigjumble.github.io/Ouroboros/nodes.json', {
+                cache: 'no-store',
+                headers: {
+                    'Cache-Control': 'no-cache',
+                    'Pragma': 'no-cache'
+                }
+            });
             const data = await response.json();
             const nodes = data as ServerNodes;
 
