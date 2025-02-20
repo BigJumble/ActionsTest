@@ -114,10 +114,10 @@ export class Communicator {
 
     }
 }
-// declare global {
-//     interface Window {
-//         Communicator: typeof Communicator;
-//     }
-// }
+declare global {
+    interface Window {
+        Communicator: typeof Communicator;
+    }
+}
 
-// window.Communicator = Communicator;
+window.Communicator = Communicator;
