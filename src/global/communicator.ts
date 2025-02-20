@@ -90,25 +90,32 @@ export class Communicator {
         console.log(`My ID: ${id}`);
         const nodesID = await this.getNodesID();
         if (nodesID) {
+
+            const peerConnect = (node: string) => {
+                this.peer.connect(node);
+                this.conn.on("open", () => this.handleConnectionOpen());
+                this.conn.on("error", () => {
+                    console.log("CONNECTION ERROR HAPPENED!");
+                    this.cleanup();
+                });
+                this.conn.on("close", () => {
+                    console.log("CONNECTION TO SERVER CLOSED! RECONNECTING!");
+                    this.cleanup();
+                }
+                );
+            }
+
             this.peer.on("error", (error) => {
                 if (error.type === "peer-unavailable") {
                     console.log("Failed to connect to old node, trying to connect to latest node");
-                    this.conn = this.peer.connect(nodesID.latestNode);
+                    this.conn.close();
+                    peerConnect(nodesID.latestNode);
                 }
             });
 
-            this.conn = this.peer.connect(nodesID.oldNode);
+            peerConnect(nodesID.oldNode);
 
-            this.conn.on("open", () => this.handleConnectionOpen());
-            this.conn.on("error", () => {
-                console.log("CONNECTION ERROR HAPPENED!");
-                this.cleanup();
-            });
-            this.conn.on("close", () => {
-                console.log("CONNECTION TO SERVER CLOSED! RECONNECTING!");
-                this.cleanup();
-            }
-            );
+
         }
     }
 
