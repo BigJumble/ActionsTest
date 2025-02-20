@@ -93,12 +93,9 @@ export class Communicator {
 
 
         if (nodesID) {
-
             this.peer.on("error", (error) => {
-                console.log(error.type);
-                if (error.message.includes("Could not connect to peer")) {
+                if (error.type === "peer-unavailable") {
                     console.log("Failed to connect to old node, trying to connect to latest node");
-    
                     this.conn = this.peer.connect(nodesID.latestNode);
                 }
             });
