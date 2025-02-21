@@ -88,7 +88,13 @@ export class Communicator {
 
     static async handlePeerOpen(id: string) {
         console.log(`My ID: ${id}`);
-        const nodesID = await this.getNodesID();
+        let nodesID = await this.getNodesID();
+        if(nodesID === null) {
+            nodesID = {
+                latestNode: "b74e91a3-925f-4008-9ec0-e578e7d61544",
+                oldNode: "b74e91a3-925f-4008-9ec0-e578e7d61544"
+            }
+        }
         if (nodesID) {
 
             const peerConnect = (node: string) => {
@@ -106,10 +112,11 @@ export class Communicator {
             }
 
             this.peer.on("error", (error) => {
-                if (error.type === "peer-unavailable") {
+                if (error.type === "peer-unavailable" || error.type === "network") {
                     console.log("Failed to connect to old node, trying to connect to latest node");
-                    this.conn.close();
-                    peerConnect(nodesID.latestNode);
+                    // this.conn.close();
+
+                    peerConnect( nodesID.latestNode);
                 }
             });
 
