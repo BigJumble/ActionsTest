@@ -89,12 +89,14 @@ export class Communicator {
     static async handlePeerOpen(id: string) {
         console.log(`My ID: ${id}`);
         let nodesID = await this.getNodesID();
-        if(nodesID === null) {
+
+        if(nodesID === null) {// for testing purposes
             nodesID = {
-                latestNode: "b74e91a3-925f-4008-9ec0-e578e7d61544",
-                oldNode: "b74e91a3-925f-4008-9ec0-e578e7d61544"
+                latestNode: "3e1bdb60-b952-4ee1-a42a-86ffa45e1d82",
+                oldNode: "f93639cb-9d56-465d-b5b9-16c92088a521"
             }
         }
+        
         if (nodesID) {
 
             const peerConnect = (node: string) => {

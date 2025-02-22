@@ -81,9 +81,9 @@ export default function Home() {
 
         <div className="grid justify-items-center  space-y-4">
           {messages.map((msg, index) => (
-            <div key={index} className="p-4 border border-gray-300 rounded-md max-h-[130vh] overflow-x-hidden overflow-y-auto">
+            <div key={index} className="p-4 border border-gray-300 rounded-md max-h-[130vh] overflow-x-auto overflow-y-auto">
               <div className="text-xl w-min max-w-[350px] truncate">{msg.userName}</div>
-              <div className="w-min min-w-[350px] ">{msg.message}</div>
+              <div className="w-min min-w-[350px] max-w-[90vw]">{msg.message}</div>
               <div className="text-sm text-gray-500 pt-2">
                 {new Date(msg.date).toLocaleString()}
               </div>
